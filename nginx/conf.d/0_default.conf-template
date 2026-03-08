@@ -1,0 +1,65 @@
+# ======= MAPS =======
+map $http_x_home_key $key_present {
+  default          "false";
+  "# SECRET KEY #" "true";
+}
+
+map $http_cloudfront_viewer_country $country_allowed {
+  # $http_cf_ipcountry for Cloudflare
+  default "false";
+  "AU"    "true";
+  "ES"    "true";
+}
+
+geo $allowed_local {
+  default         "false";
+  192.168.50.0/24 "true";
+}
+
+# ======= Gobal SSL =======
+ssl_session_cache   shared:SSL:10m;
+ssl_session_timeout 10m;
+
+ssl_certificate     self-signed.crt;
+ssl_certificate_key self-signed.key;
+#ssl_certificate     /etc/letsencrypt/live/home.example.com/fullchain.pem;
+#ssl_certificate_key /etc/letsencrypt/live/home.example.com/privkey.pem;
+ssl_protocols       TLSv1.2 TLSv1.3;
+ssl_ciphers         HIGH:!aNULL:!MD5;
+
+# ngx_http_realip_module
+include conf.d/trusted-proxies.include;
+set_real_ip_from  192.168.50.0/24;
+real_ip_header    X-Forwarded-For;
+real_ip_recursive on;
+
+# ======= default HTTP -> redir to HTTPS =======
+server {
+  listen 80 default_server;
+  server_name default_server;
+
+  # cert-bot verification path
+  location /.well-known {
+    root /usr/share/nginx/html;
+    try_files $uri =404;
+  }
+
+  location / {
+    # CDN restrictions
+    include conf.d/cdn-location.include;
+
+    return 308 https://$host$request_uri;
+  }
+}
+
+# ======= default HTTPS -> nope =======
+
+server {
+  listen      443 ssl;
+  server_name default_server;
+
+  location / {
+    add_header Content-Type text/plain;
+    return 418 "Nope.";
+  }
+}

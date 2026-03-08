@@ -1,0 +1,46 @@
+# ======= paperless-ngx-app =======
+
+server {
+  listen              443 ssl;
+  server_name         paperless-ngx docs.example.com;
+  keepalive_timeout   70;
+
+  # ======= Default location =======
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+    
+    # Restrictions
+    include conf.d/cdn-location.include;
+    include conf.d/block-rules.include;
+
+    proxy_pass http://paperless-ngx:8000;
+  }
+
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+  }
+
+  # paperless-ngx
+  client_max_body_size 50M;
+
+  # Set headers
+  proxy_set_header Host                 $http_host;
+  proxy_set_header X-Real-IP            $remote_addr;
+  # if using Cloudflare
+  #proxy_set_header X-Real-IP            $http_cf_connecting_ip;
+  proxy_set_header X-Forwarded-For      $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto    $scheme;
+  proxy_set_header X-Forwarded-Protocol $scheme;
+  
+  # proxy version
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "upgrade";
+
+  # set timeout
+  proxy_read_timeout 600s;
+  proxy_send_timeout 600s;
+  send_timeout       600s;
+}

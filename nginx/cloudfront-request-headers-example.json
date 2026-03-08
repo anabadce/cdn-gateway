@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "Accept": "*/*",
+    "Cloudfront-Forwarded-Proto": "https",
+    "Cloudfront-Is-Desktop-Viewer": "true",
+    "Cloudfront-Is-Mobile-Viewer": "false",
+    "Cloudfront-Is-Smarttv-Viewer": "false",
+    "Cloudfront-Is-Tablet-Viewer": "false",
+    "Cloudfront-Viewer-Asn": "16276",
+    "Cloudfront-Viewer-Country": "FR",
+    "Connection": "upgrade",
+    "Host": "photos.example.com",
+    "User-Agent": "curl/7.88.1",
+    "X-Amz-Cf-Id": "Okj2evVGcH3L2icBO-rYIY6ix9Dbbazpq2L9dZhcibiOXXzrVAUt6Q==",
+    "X-Home-Key": "secret-set-by-user"
+  }
+}

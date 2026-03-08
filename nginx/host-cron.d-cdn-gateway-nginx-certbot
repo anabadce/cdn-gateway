@@ -1,0 +1,1 @@
+@weekly root docker exec nginx certbot renew -q && docker restart nginx > /dev/null 

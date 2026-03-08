@@ -1,0 +1,8 @@
+.env
+letsencrypt_data
+library
+postgres
+cloudfront/config.json
+nginx/conf.d/*.conf
+*.crt
+*.key

@@ -1,0 +1,19 @@
+
+name: cdn-gateway
+
+services:
+  nginx:
+    container_name: nginx
+    build: nginx
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ${LETSENCRYPT_DATA}:/etc/letsencrypt
+    restart: always
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true

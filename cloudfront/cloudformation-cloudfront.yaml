@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFront with custom domain and using existing ACM cert
+
+Parameters:
+  DomainNameList:
+    Type: CommaDelimitedList
+    Description: The alternate domain names (CNAME) for the CloudFront distribution (e.g., www.example.com, photos.example.com)
+  
+  CertificateArn:
+    Type: String
+    Description: ARN of the existing ACM certificate in us-east-1 (CloudFront only supports certs in this region)
+  
+  OriginDomainName:
+    Type: String
+    Description: The domain name of the origin (e.g., mybucket.s3.amazonaws.com or api.example.com)
+
+  CustomHeaderValue:
+    Type: String
+    Description: Header only visibile between Cloudfront and Origin to secure traffic and avoid bypassing Cloudfront
+
+Resources:
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Aliases: !Ref DomainNameList
+        DefaultRootObject: index.html
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: default-origin
+            DomainName: !Ref OriginDomainName
+            CustomOriginConfig:  # Use this for non-S3 origins (e.g., API or static web hosting)
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginSSLProtocols:
+                - TLSv1.2
+              OriginProtocolPolicy: https-only
+            OriginCustomHeaders:
+              - HeaderName: x-home-key
+                HeaderValue: !Ref CustomHeaderValue
+        DefaultCacheBehavior:
+          TargetOriginId: default-origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: false
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+          OriginRequestPolicyId: 33f36d7e-f396-46d9-90e0-52428a34d9dc  # Managed-AllViewerAndCloudFrontHeaders-2022-06
+          MinTTL: 0
+          DefaultTTL: 0
+          MaxTTL: 0
+          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03  # SecurityHeadersPolicy
+        PriceClass: PriceClass_All
+
+Outputs:
+  CloudFrontDomainName:
+    Description: Domain name of the CloudFront distribution
+    Value: !GetAtt CloudFrontDistribution.DomainName
