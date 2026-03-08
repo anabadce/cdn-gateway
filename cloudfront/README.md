@@ -1,57 +1,52 @@
-## Cloudfront
+## CloudFront
+CloudFront helps shield your local server from the Internet and provides useful request headers, such as the country the traffic originates from.
 
-Recommended to use a CDN like Cloudfront to protect all traffic.
+The steps below assume you have a custom domain and DNS access to it.
 
-Cloudfront helps to shield your local server from the Internet as well as provide useful headers like which country the traffic comes from. 
+### Deploy AWS CloudFront using a CloudFormation template
 
-Assuming you have a custom domain and DNS access to it.
+#### 1. Issue an SSL certificate
+In the AWS console, go to **AWS Certificate Manager** and issue a free certificate for the subdomains you want to expose.
 
-### Deploy AWS Cloudfront using Cloudformation template
+> **Important:** the certificate must be in the **US East (N. Virginia) `us-east-1`** region — CloudFront requires this regardless of where your other resources are.
 
-- Install `awscli` : https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+Validate the certificate via DNS. Example subdomains:
+- `photos.example.com`
+- `docs.example.com`
+
+#### 2. Install the AWS CLI
+See the [official installation guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for your OS. Example for Ubuntu/snap:
 ```bash
-# Example:
 sudo snap install aws-cli --classic
 ```
 
-- Login to AWS in your console `aws-cli`
+#### 3. Authenticate the AWS CLI
 ```bash
-aws configure
-# or
+aws login
+# or, for SSO:
 aws configure sso
 aws sso login --profile my-profile
 ```
 
-- Copy `config-template.json` to `config.json` and edit it:
-  - `DomainName` is the public domain you want to use to access your site on the web.
-  - `CertificateArn` is the certificate id in AWS you must have issued and valid for the "DomainName".
-  - `OriginDomainName` is the domain that points to your server/home IP, this must support HTTPS and have a valid certificate.
-  - `CustomHeaderValue` is a custom header Cloudfront will inject between AWS and your server, this secret will ensure only your Cloudfront can access your server.
+#### 4. Configure the stack
+Copy `config-template.json` to `config.json` and edit the following fields:
 
-- Deploy stack
+- **`DomainName`** — the public domain used to access your services (e.g. `photos.example.com`).
+- **`CertificateArn`** — the ARN of the certificate you issued in step 1.
+- **`OriginDomainName`** — the domain pointing to your home server IP. Must be reachable over HTTPS with a valid certificate.
+  - Once Nginx is running and reachable on port 80, you can issue a free Let's Encrypt certificate for this domain.
+- **`CustomHeaderValue`** — a secret value CloudFront injects into requests to your origin. Nginx will reject any request that doesn't include it, ensuring only your CloudFront distribution can reach your server.
+
+#### 5. Deploy the stack
 ```bash
 ./deploy-stack.sh
 ```
 
-### Alternative manual set up of CloudFront
+### Notes
+- CloudFront will not work until the origin domain is reachable via HTTPS with a valid certificate — e.g. `https://home.example.com` must resolve to your home IP.
+- If your ISP assigns a dynamic IP, you can automate DNS updates with:
+  - [DynDNS](https://account.dyn.com/)
+  - This simple Cloudflare cron script: [python-cloudflare-dynamic-ip](https://github.com/anabadce/python-cloudflare-dynamic-ip)
 
-- FREE: Issue an SSL certificate using ACM (AWS Certificate Manager)
-  - Ensure it is in US East (N. Virginia) Region (us-east-1).
-  - Validate the Certificate with DNS.
-- FREE: Create Cloudfront distribution
-  - Alternate domain names must contain your chosen domain and the certificate issued
-  - Origin:
-    - HTTPS Only
-    - Custom header name like `x-home-key` = <some private passphrase>
-      - In your local Nginx `nginx/conf.d/immich.conf` update "# SECRET KEY #" so only requests with this key are accepted.
-      - Also adjust what countries are allowed (recommended)
-      - This is so attackers don't bypass Cloudfront
-    - Origin Shield: off
-  - Delete all Behaviours but the `Default (*)`
-  - Default Behaviour:
-    - Viewer protocol policy: Redirect HTTP to HTTPS
-    - Legacy cache settings:
-      - Headers: all
-      - Query strings: all
-      - Cookies: all
-- NOT Free: enable AWS WAF if you want extra security
+### Costs
+AWS will only charge you for CloudFront bandwidth if you exceed the free tier allowance. See the [CloudFront pricing page](https://aws.amazon.com/cloudfront/pricing/) for details.
