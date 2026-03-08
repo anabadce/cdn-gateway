@@ -56,3 +56,9 @@ Run any service you want to expose publicly on the same `shared-network` so the 
 - [Immich](https://docs.immich.app/install/docker-compose/)
 - [Navidrome](https://www.navidrome.org/docs/installation/docker/)
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx/tree/dev/docker/compose)
+
+## TODO
+- Automate CloudFront trusted proxy list updates
+
+## ⚠️ Disclaimer
+Exposing your home server and personal photos to the public Internet carries inherent risks. By following this guide you accept full responsibility for your setup and its security.
