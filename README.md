@@ -31,6 +31,7 @@ Configure port forwarding on your router to send ports 80 and 443 to your Docker
   - Your secret CDN-Nginx shared key (`CustomHeaderValue` set in CloudFront).
   - The countries you want to grant access to.
   - The local network range of the host.
+- Generate Self-Sign certs, see [ssl](./nginx/conf.d/ssl).
 
 ### 4. Start the gateway
 ```bash
@@ -48,12 +49,19 @@ docker compose up -d
 docker compose logs --follow
 ```
 
-### 5. Verify
+### 5. Generate proper publiclty signed SSL certificate
+The domain Cloudfront is going to use to connect to your home lab from AWS servers, for example, `home.example.com`, needs a valid SSL certificate.
+Note at this point you need something like the following in your custom DNS domains:
+- `photos.example.com` -> Points to AWS Cloudfront, like CNAME = xxxxxxxxxx.cloudfront.net.
+- `home.example.com` -> Points to your home public IP, A Record or CNAME.
+Check [nginx](./nginx) the instructions to issue a certificate using `certbot`.
+
+### 6. Verify
 Browse to a domain you configured in CloudFront — e.g. `https://photos.example.com` — it should return `Nope.` (expected until a service is wired up).
 
 ## Exposing additional services
 Run any service you want to expose publicly on the same `shared-network` so the gateway can reach it. Use the provided templates in `nginx/conf.d/` as a starting point. Tested with:
-- [Immich](https://docs.immich.app/install/docker-compose/)
+- [Immich](https://github.com/anabadce/immich-docker/)
 - [Navidrome](https://www.navidrome.org/docs/installation/docker/)
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx/tree/dev/docker/compose)
 

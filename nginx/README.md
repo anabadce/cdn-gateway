@@ -37,6 +37,10 @@ Once issued a valid cert update `0-default.conf` cert paths.
 
 Example of initial issue:
 ```bash
+# open shell in the Nginx container
+docker exec -it nginx bash
+
+# Once inside the container
 DOMAIN=home.example.com
 EMAIL=myname@example.com
 WEBROOT=/usr/share/nginx/html
