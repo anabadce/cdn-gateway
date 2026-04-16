@@ -27,11 +27,11 @@ ssl_certificate_key self-signed.key;
 ssl_protocols       TLSv1.2 TLSv1.3;
 ssl_ciphers         HIGH:!aNULL:!MD5;
 
-# ngx_http_realip_module
-include conf.d/trusted-proxies.include;
-set_real_ip_from  192.168.50.0/24;
-real_ip_header    X-Forwarded-For;
-real_ip_recursive on;
+# Needs module: ngx_http_realip_module
+# If Cloudfront:
+real_ip_header $http_cloudFront_viewer_address;
+# If Cloudflare:
+#real_ip_header $http_cf_ipcountry;
 
 # ======= default HTTP -> redir to HTTPS =======
 server {

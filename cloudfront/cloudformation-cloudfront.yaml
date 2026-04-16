@@ -25,7 +25,6 @@ Resources:
       DistributionConfig:
         Enabled: true
         Aliases: !Ref DomainNameList
-        DefaultRootObject: index.html
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only

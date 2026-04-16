@@ -35,10 +35,6 @@ Configure port forwarding on your router to send ports 80 and 443 to your Docker
 
 ### 4. Start the gateway
 ```bash
-# Fetch the latest CloudFront IP ranges
-# (does not auto-update, but changes infrequently)
-./update-nginx-proxy-list.sh
-
 # Create the shared Docker network
 docker network create shared-network
 
@@ -64,9 +60,6 @@ Run any service you want to expose publicly on the same `shared-network` so the 
 - [Immich](https://github.com/anabadce/immich-docker/)
 - [Navidrome](https://www.navidrome.org/docs/installation/docker/)
 - [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx/tree/dev/docker/compose)
-
-## TODO
-- Automate CloudFront trusted proxy list updates
 
 ## ⚠️ Disclaimer
 Exposing your home server and personal photos to the public Internet carries inherent risks. By following this guide you accept full responsibility for your setup and its security.
