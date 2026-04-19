@@ -1,23 +1,9 @@
-# ======= immich-app =======
+# ======= nextcloud-app =======
 
 server {
   listen              443 ssl;
-  server_name         immich photos.example.com;
-  keepalive_timeout   70;
-
-  # ======= certbot special =======
-  location /.well-known {
-    root /usr/share/nginx/html;
-    try_files $uri =404;
-  }
-
-  # ======= Test =======
-  location /.httpbin {
-    # rewrite "^/\.httpbin(.*)" $1 break;
-    # proxy_pass http://httpbin;
-    return 410 "httpbin disabled";
-    add_header Content-Type text/plain always;
-  }
+  server_name         nextcloud cloud.example.com;
+  keepalive_timeout   60;
 
   # ======= Default location =======
   location / {
@@ -27,8 +13,9 @@ server {
     # Restrictions
     include conf.d/cdn-location.include;
     include conf.d/block-rules.include;
-
-    proxy_pass http://immich-server:2283;
+    
+    # Nextcloud endpoint
+    proxy_pass http://nextlcoud;
   }
 
   error_page   500 502 503 504  /50x.html;
@@ -36,9 +23,7 @@ server {
     root   /usr/share/nginx/html;
   }
 
-  # https://immich.app/docs/administration/reverse-proxy/
-
-  client_max_body_size 50000M;
+  client_max_body_size 512M;
 
   # Set headers
   proxy_set_header Host              $http_host;

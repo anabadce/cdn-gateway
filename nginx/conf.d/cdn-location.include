@@ -7,13 +7,13 @@
 
     # Cloudfront: accept request only if secret header is present
     if ($key_present = "false") {
-      add_header Content-Type text/plain;
+      add_header Content-Type text/plain always;
       return 403 "Not allowed entry point.";
     }
 
     # Cloudfront: Reject any request outside specific country code 
     if ($country_allowed = "false") {
-      add_header Content-Type text/plain;
+      add_header Content-Type text/plain always;
       return 403 "Not allowed country.";
     }
     

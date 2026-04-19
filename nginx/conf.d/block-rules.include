@@ -9,6 +9,7 @@
         set $block_sql_injections 1;
     }
     if ($block_sql_injections = 1) {
+       add_header Content-Type text/plain always;
         return 403 "bsi";
     }
 
@@ -23,6 +24,7 @@
         set $block_file_injections 1;
     }
     if ($block_file_injections = 1) {
+        add_header Content-Type text/plain always;
         return 403 "bli";
     }
 
@@ -46,6 +48,7 @@
         set $block_common_exploits 1;
     }
     if ($block_common_exploits = 1) {
+        add_header Content-Type text/plain always;
         return 403 "bce";
     }
 
@@ -78,5 +81,6 @@
         set $block_user_agents 1;
     }
     if ($block_user_agents = 1) {
+        add_header Content-Type text/plain always;
         return 403 "bua";
     }
