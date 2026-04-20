@@ -5,14 +5,14 @@ server {
   server_name         paperless-ngx docs.example.com;
   keepalive_timeout   70;
 
+  # CDN Restrictions
+  include conf.d/cdn-location.include;
+  include conf.d/block-rules.include;
+
   # ======= Default location =======
   location / {
     root   /usr/share/nginx/html;
     index  index.html index.htm;
-    
-    # Restrictions
-    include conf.d/cdn-location.include;
-    include conf.d/block-rules.include;
 
     proxy_pass http://paperless-ngx:8000;
   }
@@ -27,10 +27,8 @@ server {
 
   # Set headers
   proxy_set_header Host                 $http_host;
-  proxy_set_header X-Real-IP            $remote_addr;
-  # if using Cloudflare
-  #proxy_set_header X-Real-IP            $http_cf_connecting_ip;
-  proxy_set_header X-Forwarded-For      $proxy_add_x_forwarded_for;
+  proxy_set_header X-Real-IP            $client_real_ip;
+  proxy_set_header X-Forwarded-For      $client_real_ip;
   proxy_set_header X-Forwarded-Proto    $scheme;
   proxy_set_header X-Forwarded-Protocol $scheme;
   

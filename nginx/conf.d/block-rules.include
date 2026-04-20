@@ -9,8 +9,7 @@
         set $block_sql_injections 1;
     }
     if ($block_sql_injections = 1) {
-       add_header Content-Type text/plain always;
-        return 403 "bsi";
+        return 403 '{"Error":"bsi"}';
     }
 
     set $block_file_injections 0;
@@ -24,8 +23,7 @@
         set $block_file_injections 1;
     }
     if ($block_file_injections = 1) {
-        add_header Content-Type text/plain always;
-        return 403 "bli";
+        return 403 '{"Error":"bfi"}';
     }
 
     set $block_common_exploits 0;
@@ -48,8 +46,7 @@
         set $block_common_exploits 1;
     }
     if ($block_common_exploits = 1) {
-        add_header Content-Type text/plain always;
-        return 403 "bce";
+        return 403 '{"Error":"bce"}';
     }
 
     set $block_user_agents 0;
@@ -81,6 +78,5 @@
         set $block_user_agents 1;
     }
     if ($block_user_agents = 1) {
-        add_header Content-Type text/plain always;
-        return 403 "bua";
+        return 403 '{"Error":"bua"}';
     }

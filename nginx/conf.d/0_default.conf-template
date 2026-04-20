@@ -4,13 +4,44 @@ map $http_x_home_key $key_present {
   "# SECRET KEY #" "true";
 }
 
-map $http_cloudfront_viewer_country $country_allowed {
-  # $http_cf_ipcountry for Cloudflare
+# $cloudfront_real_ip set from Cloudfront-Viewer-Address header removing port
+map $http_cloudfront_viewer_address $cloudfront_real_ip {
+  "~^(?P<ip>.+):\d+$" $ip;
+  default             $http_cloudfront_viewer_address;
+}
+
+# $cloudflare_or_cloudfront_ip with the IP from either Cloudflare or Cloudfront
+map $cloudfront_real_ip $cloudflare_or_cloudfront_ip {
+  ""      $http_cf_connecting_ip;
+  default $cloudfront_real_ip;
+}
+
+# $client_real_ip from Cloudflare or Cloudfront and set to remote_addr if nothing found
+map $cloudflare_or_cloudfront_ip $client_real_ip {
+  ""      $remote_addr;
+  default $cloudflare_or_cloudfront_ip;
+}
+
+# $cloudflare_or_cloudfront_country with the country code from either Cloudflare or Cloudfront
+map $http_cloudfront_viewer_country $cloudflare_or_cloudfront_country {
+  ""      $http_cf_ipcountry;
+  default $http_cloudfront_viewer_country;
+}
+
+# $country_header to ZZ if no country was found from either Cloudflare or Cloudfront headers
+map $cloudflare_or_cloudfront_country $country_header {
+  ""      "ZZ";
+  default $cloudflare_or_cloudfront_country;
+}
+
+# $country_allowed to true for the allowed countries
+map $country_header $country_allowed {
   default "false";
   "AU"    "true";
   "ES"    "true";
 }
 
+# $allowed_local to true if traffic is our local home lab network
 geo $allowed_local {
   default         "false";
   192.168.50.0/24 "true";
@@ -27,12 +58,6 @@ ssl_certificate_key self-signed.key;
 ssl_protocols       TLSv1.2 TLSv1.3;
 ssl_ciphers         HIGH:!aNULL:!MD5;
 
-# Needs module: ngx_http_realip_module
-# If Cloudfront:
-real_ip_header $http_cloudFront_viewer_address;
-# If Cloudflare:
-#real_ip_header $http_cf_ipcountry;
-
 # ======= default HTTP -> redir to HTTPS =======
 server {
   listen 80 default_server;
@@ -45,9 +70,6 @@ server {
   }
 
   location / {
-    # CDN restrictions
-    include conf.d/cdn-location.include;
-
     return 308 https://$host$request_uri;
   }
 }
@@ -60,6 +82,6 @@ server {
 
   location / {
     add_header Content-Type text/plain always;
-    return 418 "Secure Nope.";
+    return 418 '{"Error":"Default Nope"}';
   }
 }

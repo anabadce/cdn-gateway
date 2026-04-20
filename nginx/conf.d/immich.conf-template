@@ -5,28 +5,14 @@ server {
   server_name         immich photos.example.com;
   keepalive_timeout   70;
 
-  # ======= certbot special =======
-  location /.well-known {
-    root /usr/share/nginx/html;
-    try_files $uri =404;
-  }
-
-  # ======= Test =======
-  location /.httpbin {
-    # rewrite "^/\.httpbin(.*)" $1 break;
-    # proxy_pass http://httpbin;
-    return 410 "httpbin disabled";
-    add_header Content-Type text/plain always;
-  }
+  # CDN Restrictions
+  include conf.d/cdn-location.include;
+  include conf.d/block-rules.include;
 
   # ======= Default location =======
   location / {
     root   /usr/share/nginx/html;
     index  index.html index.htm;
-    
-    # Restrictions
-    include conf.d/cdn-location.include;
-    include conf.d/block-rules.include;
 
     proxy_pass http://immich-server:2283;
   }
@@ -42,10 +28,8 @@ server {
 
   # Set headers
   proxy_set_header Host              $http_host;
-  proxy_set_header X-Real-IP         $remote_addr;
-  # if usig Cloudflare
-  #proxy_set_header X-Real-IP         $http_cf_connecting_ip;
-  proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header X-Real-IP         $client_real_ip;
+  proxy_set_header X-Forwarded-For   $client_real_ip;
   proxy_set_header X-Forwarded-Proto $scheme;
 
   # enable websockets: http://nginx.org/en/docs/http/websocket.html
