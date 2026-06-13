@@ -14,7 +14,8 @@ server {
     root   /usr/share/nginx/html;
     index  index.html index.htm;
 
-    proxy_pass http://immich-server:2283;
+    set $immich http://immich-server.lan:2283;
+    proxy_pass $immich;
   }
 
   error_page   500 502 503 504  /50x.html;

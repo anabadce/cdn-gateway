@@ -2,8 +2,7 @@ FROM nginx:latest
 
 # install certbot
 RUN apt-get update
-RUN apt-get install -y \
-    certbot
+RUN apt-get upgrade
 
 # self-signed certs
 COPY --chmod=600 ssl/self-signed.* /etc/nginx/

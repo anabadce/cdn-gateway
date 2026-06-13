@@ -15,7 +15,8 @@ server {
     index  index.html index.htm;
     
     # Nextcloud endpoint
-    proxy_pass http://nextlcoud;
+    set $nextcloud https://nextcloud-server.lan:9443;
+    proxy_pass $nextcloud;
   }
 
   error_page   500 502 503 504  /50x.html;
