@@ -10,6 +10,7 @@ services:
       - "80:80"
     volumes:
       - ${LETSENCRYPT_DATA}:/etc/letsencrypt:ro
+      - ${NGINX_DATA}/.well-known:/usr/share/nginx/html/.well-known:ro
     restart: always
     networks:
       - shared-network
@@ -20,6 +21,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${LETSENCRYPT_DATA}:/etc/letsencrypt
+      - ${NGINX_DATA}/.well-known:/usr/share/nginx/html/.well-known
     entrypoint: /bin/sh
     command: >
       -c "trap exit TERM;

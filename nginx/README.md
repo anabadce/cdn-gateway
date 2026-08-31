@@ -12,19 +12,6 @@ Nginx is used for some or all of the following:
 - Rewrites
 - Error handling
 
-## Dockerfile
-
-We start from official latest Nginx container
-- Install certbot
-- Copy our config with our custom `server {}` block
-
-## Host cronjob
-
-To automatically renew the local LE certificate we need to set up a cron job in the host running docker
-```bash
-sudo cp nginx/host-cron.d-cdn-gateway-nginx-certbot /etc/cron.d
-```
-
 ## Certbot initial set up:
 
 Initially Nginx uses a self-signed cert, great for local tests but not good for public Internet traffic.
@@ -38,7 +25,7 @@ Once issued a valid cert update `0-default.conf` cert paths.
 Example of initial issue:
 ```bash
 # open shell in the Nginx container
-docker exec -it nginx bash
+docker exec -it certbot sh
 
 # Once inside the container
 DOMAIN=home.example.com

@@ -1,6 +1,7 @@
 .env
-letsencrypt_data
 cloudfront/config.json
+letsencrypt_data
+nginx_data
 nginx/conf.d/*.conf
 *.crt
 *.key
